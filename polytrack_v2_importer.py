@@ -1106,10 +1106,12 @@ def _apply_opts_to_bm(bm: bmesh.types.BMesh, opts: dict):
             bmesh.ops.translate(bm, vec=Vector((0, 0, max_z)), verts=bm.verts)
 
     # 4. Offset: game (ox, oy, oz) → Blender (ox, -oz, oy), scaled by 5
+    # 4. Offset: game (ox, oy, oz) → Blender (ox, -oz, oy), NO scaling
+    #    The offset is already in world units, not grid units
     if "offset" in opts:
         ox, oy, oz = opts["offset"]
         bmesh.ops.translate(bm,
-                            vec=Vector((ox * 5, -oz * 5, oy * 5)),
+                            vec=Vector((ox, -oz, oy)),
                             verts=bm.verts)
 
 def _build_model(part_name: str, sources: list,
