@@ -290,11 +290,19 @@ ENVIRONMENT_NAMES = {
     3: "Desert",
 }
 
+def srgb_to_linear(c: float) -> float:
+    if c <= 0.04045:
+        return c / 12.92
+    return ((c + 0.055) / 1.055) ** 2.4
+
 def hex_to_rgba(hex_str: str) -> tuple:
     hex_str = hex_str.lstrip('#')
     if len(hex_str) != 6:
         return (1.0, 1.0, 1.0, 1.0)
-    return (int(hex_str[0:2], 16)/255.0, int(hex_str[2:4], 16)/255.0, int(hex_str[4:6], 16)/255.0, 1.0)
+    r = srgb_to_linear(int(hex_str[0:2], 16) / 255.0)
+    g = srgb_to_linear(int(hex_str[2:4], 16) / 255.0)
+    b = srgb_to_linear(int(hex_str[4:6], 16) / 255.0)
+    return (r, g, b, 1.0)
 
 MATERIAL_CACHE = {}
 
@@ -316,23 +324,6 @@ def get_override_material(original_mat: bpy.types.Material, hex_color: str) -> b
                 
     MATERIAL_CACHE[cache_key] = new_mat
     return new_mat
-
-
-def get_color_name(color_id: int, environment: int = 0) -> str:
-    """Get a human-readable name for a color ID."""
-    if color_id in CUSTOM_COLORS:
-        return f"PolyTrack_Custom{color_id}"
-    elif color_id == 0:
-        env_name = ENVIRONMENT_NAMES.get(environment, "Summer")
-        return f"PolyTrack_{env_name}"
-    elif color_id in ENVIRONMENT_COLORS:
-        if color_id == 1:
-            return "PolyTrack_Summer"
-        elif color_id == 2:
-            return "PolyTrack_Winter"
-        elif color_id == 3:
-            return "PolyTrack_Desert"
-    return f"PolyTrack_Color{color_id}"
 
 
 # =============================================================================
