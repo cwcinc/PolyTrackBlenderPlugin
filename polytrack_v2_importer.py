@@ -901,8 +901,19 @@ class POLYTRACKV2_OT_import(bpy.types.Operator):
         else:
             self.report({'INFO'}, msg)
 
+        normalize_imported_materials()
+
         return {'FINISHED'}
 
+def normalize_imported_materials():
+    for mat in bpy.data.materials:
+        if not mat.use_nodes:
+            continue
+        for node in mat.node_tree.nodes:
+            if node.type == 'BSDF_PRINCIPLED':
+                node.inputs['Metallic'].default_value = 0.0
+                node.inputs['Roughness'].default_value = 1.0
+                break
 
 class POLYTRACKV2_OT_list_missing(bpy.types.Operator):
     bl_idname = "polytrack_v2.list_missing"
